@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JASMIN | Art Studio</title>
+
+    <!-- 引入字体 -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;600&display=swap"
+        rel="stylesheet">
+
+    <!-- 依赖库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <style>
+        :root {
+            --bg-deep: #050505;
+            --bg-card: #141414;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --accent-gold: #d4af37;
+            --text-main: #ececec;
+            --text-sub: #888888;
+            --font-logo: 'Cinzel', serif;
+            --font-title: 'Playfair Display', serif;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            /* user-select: none; */
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* --- 3D 背景 --- */
+        #webgl-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* --- 主容器 --- */
+        .app-container {
+            position: relative;
+            z-index: 10;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 0 40px;
+        }
+
+        /* --- 头部 --- */
+        header {
+            height: 100px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+        }
+
+        /* SVG 图标样式 */
+        .logo-icon svg {
+            width: 40px;
+            height: 40px;
+            fill: var(--accent-gold);
+            filter: drop-shadow(0 0 5px rgba(212, 175, 55, 0.3));
+        }
+
+        .logo-text {
+            font-family: var(--font-logo);
+            font-size: 1.8rem;
+            letter-spacing: 0.1em;
+            color: #fff;
+            font-weight: 700;
+        }
+
+        .search-bar {
+            position: relative;
+            width: 300px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid transparent;
+            border-bottom: 1px solid var(--text-sub);
+            padding: 10px 15px;
+            color: #fff;
+            font-family: var(--font-body);
+            transition: 0.3s;
+            border-radius: 4px;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* --- 网格区域 --- */
+        .content-scroll-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 0 80px 0;
+        }
+
+        .content-scroll-area::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .content-scroll-area::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 2px;
+        }
+
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            padding-bottom: 50px;
+        }
+
+        /* --- 卡片设计 --- */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            /* transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s ease; */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* 封面区域 */
+        .card-cover {
+            height: 180px;
+            width: 100%;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .card-cover::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, var(--bg-card), transparent 80%);
+        }
+
+        .card-content {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-meta {
+            font-size: 0.75rem;
+            color: var(--accent-gold);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .card-title {
+            font-family: var(--font-title);
+            font-size: 1.4rem;
+            margin-bottom: 12px;
+            color: #fff;
+            line-height: 1.2;
+        }
+
+        .card-desc {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            line-height: 1.6;
+            margin-bottom: 20px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-footer {
+            margin-top: auto;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            color: #999;
+        }
+
+        /* --- 沉浸式弹窗 (Modal) --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-header {
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            border-bottom: 1px solid #222;
+        }
+
+        .back-btn {
+            color: var(--text-sub);
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
+        }
+
+        .back-btn:hover {
+            color: var(--accent-gold);
+        }
+
+        .modal-content-wrapper {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* 左侧信息区 */
+        .modal-sidebar {
+            width: 350px;
+            background: #0a0a0a;
+            border-right: 1px solid #222;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .m-artist {
+            color: var(--accent-gold);
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .m-title {
+            font-family: var(--font-title);
+            font-size: 2rem;
+            margin-bottom: 20px;
+            line-height: 1.1;
+        }
+
+        .m-desc {
+            color: #888;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 40px;
+            border-bottom: 1px solid #222;
+            padding-bottom: 20px;
+        }
+
+        /* 右侧内容区 (根据类型自动切换) */
+        .modal-main {
+            flex: 1;
+            position: relative;
+            background: #000;
+            overflow: hidden;
+        }
+
+        /* A. 文本列表模式 */
+        .text-catalog-view {
+            padding: 60px 100px;
+            overflow-y: auto;
+            height: 100%;
+            display: none;
+            /* 默认隐藏 */
+        }
+
+        .chapter-item {
+            padding: 25px 0;
+            border-bottom: 1px solid #1a1a1a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #aaa;
+            transition: 0.3s;
+        }
+
+        .chapter-item:hover {
+            color: #fff;
+            padding-left: 10px;
+            border-bottom-color: var(--accent-gold);
+        }
+
+        .chapter-idx {
+            font-family: var(--font-logo);
+            color: var(--accent-gold);
+            margin-right: 20px;
+            font-size: 1.2rem;
+        }
+
+        .chapter-name {
+            font-size: 1.1rem;
+        }
+
+        /* B. 图片画廊模式 */
+        .gallery-view {
+            width: 100%;
+            height: 100%;
+            display: none;
+            /* 默认隐藏 */
+            flex-direction: column;
+        }
+
+        /* 画廊-大图展示区 */
+        .gallery-stage {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+        }
+
+        .gallery-stage:active {
+            cursor: grabbing;
+        }
+
+        .stage-image {
+            max-width: 90%;
+            max-height: 90%;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+            transition: transform 0.1s linear;
+            /* 拖拽平滑 */
+            transform-origin: center;
+        }
+
+        /* 画廊-底部缩略图栏 */
+        .gallery-thumbs {
+            height: 100px;
+            background: #0a0a0a;
+            border-top: 1px solid #222;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            gap: 15px;
+            overflow-x: auto;
+        }
+
+        .thumb {
+            height: 60px;
+            width: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+            opacity: 0.5;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: 0.2s;
+            flex-shrink: 0;
+        }
+
+        .thumb:hover,
+        .thumb.active {
+            opacity: 1;
+            border-color: var(--accent-gold);
+            transform: scale(1.1);
+        }
+
+        /* 提示 */
+        .empty-tip {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #333;
+            font-size: 1.5rem;
+            font-family: var(--font-logo);
+        }
+
+        @media (max-width: 900px) {
+            .modal-content-wrapper {
+                flex-direction: column;
+            }
+
+            .modal-sidebar {
+                width: 100%;
+                height: 30%;
+                border-right: none;
+                border-bottom: 1px solid #222;
+                padding: 20px;
+            }
+
+            .text-catalog-view {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <canvas id="webgl-canvas"></canvas>
+
+    <div class="app-container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">
+                    <!-- 艺术调色板 SVG Icon -->
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c1.85 0 3.56-.5 5.03-1.38.38-.23.63-.64.63-1.09v-1.99c0-.83.67-1.5 1.5-1.5.4 0 .76.16 1.03.42l.34.34c.19.19.45.3.71.3.55 0 1-.45 1-1V12c0-5.52-4.48-10-10-10zm-3 8.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3.5 3c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm2.5-3c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm2.5 5h-1.5v-1.5h1.5v1.5z" />
+                    </svg>
+                </div>
+                <div class="logo-text">JASMIN</div>
+            </div>
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search assets...">
+            </div>
+        </header>
+
+        <div class="content-scroll-area">
+            <div class="course-grid" id="gridContainer">
+                <!-- JS 渲染卡片 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 弹窗 -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-header">
+            <div class="logo-text" style="font-size: 1.2rem;">JASMIN DATABASE</div>
+            <div class="back-btn" onclick="closeModal()">
+                <span>✕ CLOSE</span>
+            </div>
+        </div>
+        <div class="modal-content-wrapper">
+            <!-- 左侧详情 -->
+            <div class="modal-sidebar">
+                <div class="m-artist" id="mArtist">Artist Name</div>
+                <h2 class="m-title" id="mTitle">Course Title</h2>
+                <p class="m-desc" id="mDesc">Description...</p>
+                <!-- 这里还可以放一些统计信息 -->
+                <div style="margin-top:auto; font-size:0.8rem; color:#444;">
+                    Catalog Type: <span id="mType" style="color:#666;">Unknown</span>
+                </div>
+            </div>
+
+            <!-- 右侧内容 (互斥) -->
+            <div class="modal-main">
+                <!-- <div class="empty-tip">NO CONTENT LOADED</div> -->
+
+                <!-- 模式A：文本列表 -->
+                <div class="text-catalog-view" id="textView">
+                    <!-- JS 填充 -->
+                </div>
+
+                <!-- 模式B：图片画廊 -->
+                <div class="gallery-view" id="galleryView">
+                    <div class="gallery-stage" id="galleryStage">
+                        <img src="" class="stage-image" id="stageImage">
+                    </div>
+                    <div class="gallery-thumbs" id="galleryThumbs">
+                        <!-- JS 填充 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // 1. 数据配置 (模拟本地数据)
+        // ============================================
+        // 默认封面图 (当 JSON 中没有 cover 时使用)
+        const DEFAULT_COVER =
+            "https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?q=80&w=1000&auto=format&fit=crop";
+
+        const DATABASE = [{
+                artist: "Jasmin",
+                courseName: "Oil Painting Techniques",
+                details: "深入探索油画的肌理与光泽。包含12个经典静物案例分析。",
+                tags: ["Oil", "Classic", "Texture"],
+                cover: "", // 空着，测试默认封面
+                // 只有图片目录
+                imageCatalog: [{
+                        title: "Sphere Study",
+                        path: "./local/oil_01.jpg"
+                    },
+                    {
+                        title: "Apple & Cloth",
+                        path: "./local/oil_02.jpg"
+                    },
+                    {
+                        title: "Glass Ware",
+                        path: "./local/oil_03.jpg"
+                    }
+                ],
+                textCatalog: [] // 空数组
+            },
+            {
+                artist: "Jasmin",
+                courseName: "History of Modern Art",
+                details: "纯理论课程。梳理从19世纪末到20世纪中的现代艺术流派演变。",
+                tags: ["Theory", "History", "Reading"],
+                cover: "https://chenwenb.com/wp-content/themes/modown/timthumb.php?src=https://chenwenb.com/wp-content/uploads/2025/12/21011523972.jpg&w=285&h=180&zc=1&q=95&a=c", // 有封面
+                // 只有文字目录
+                imageCatalog: [],
+                textCatalog: [
+                    "Ch.1: Impressionism Origins",
+                    "Ch.2: Post-Impressionism Analysis",
+                    "Ch.3: Cubism and Structure",
+                    "Ch.4: Surrealism Dreamscapes",
+                    "Ch.5: Abstract Expressionism"
+                ]
+            },
+            {
+                artist: "Jasmin",
+                courseName: "Sketching Dynamics",
+                details: "人体动态速写专项训练。大量图片参考资料。",
+                tags: ["Sketch", "Figure", "Anatomy"],
+                cover: "https://images.unsplash.com/photo-1549490349-8643362247b5?q=80&w=800",
+                imageCatalog: [{
+                        title: "Gesture 01",
+                        path: "./local/sk_01.jpg"
+                    },
+                    {
+                        title: "Gesture 02",
+                        path: "./local/sk_02.jpg"
+                    },
+                    {
+                        title: "Gesture 03",
+                        path: "./local/sk_03.jpg"
+                    },
+                    {
+                        title: "Muscle Structure",
+                        path: "./local/sk_04.jpg"
+                    }
+                ],
+                textCatalog: []
+            },
+            {
+                artist: "Jasmin",
+                courseName: "Digital Concept Design",
+                details: "针对游戏行业的概念设计理论，文字笔记整理。",
+                tags: ["Concept", "GameArt", "Notes"],
+                cover: "https://images.unsplash.com/photo-1558655146-d09347e92766?q=80&w=800",
+                imageCatalog: [],
+                textCatalog: [
+                    "Note 1: Silhouette Design",
+                    "Note 2: Color Scripting",
+                    "Note 3: World Building Rules",
+                    "Note 4: Character Archetypes"
+                ]
+            }
+        ];
+
+        // --- 辅助：将假本地路径转为真网络图 ---
+        // (您正式使用时，请删除此函数并在渲染时直接用 item.path)
+        function resolvePath(localPath) {
+            const seed = localPath.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+            return `https://picsum.photos/seed/${seed}/1200/900`;
+        }
+
+        // ============================================
+        // 2. 渲染主页面
+        // ============================================
+        const gridContainer = document.getElementById('gridContainer');
+
+        function renderGrid(filter = '') {
+            gridContainer.innerHTML = '';
+
+            const list = DATABASE.filter(item =>
+                item.courseName.toLowerCase().includes(filter.toLowerCase()) ||
+                item.tags.some(t => t.toLowerCase().includes(filter.toLowerCase()))
+            );
+
+            list.forEach((item, idx) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+
+                // 处理封面
+                const coverSrc = item.cover ? item.cover : DEFAULT_COVER;
+
+                // 标签
+                const tagHtml = item.tags.map(t => `<span class="tag">${t}</span>`).join('');
+
+                card.innerHTML = `
+                    <div class="card-cover" style="background-image: url('${coverSrc}')"></div>
+                    <div class="card-content">
+                        <div class="card-meta">
+                            <span>${item.artist}</span>
+                            <span>ID: 0${idx+1}</span>
+                        </div>
+                        <h3 class="card-title">${item.courseName}</h3>
+                        <p class="card-desc">${item.details}</p>
+                        <div class="card-footer">${tagHtml}</div>
+                    </div>
+                `;
+
+                // 动画
+                gsap.from(card, {
+                    y: 30,
+                    opacity: 0,
+                    delay: idx * 0.1,
+                    duration: 0.5
+                });
+
+                card.addEventListener('click', () => openModal(item));
+                gridContainer.appendChild(card);
+            });
+        }
+        renderGrid();
+
+        document.getElementById('searchInput').addEventListener('input', (e) => renderGrid(e.target.value));
+
+
+        // ============================================
+        // 3. 弹窗与目录逻辑 (互斥)
+        // ============================================
+        const modal = document.getElementById('modalOverlay');
+        const textView = document.getElementById('textView');
+        const galleryView = document.getElementById('galleryView');
+        const mType = document.getElementById('mType');
+
+        // 画廊相关元素
+        const stageImage = document.getElementById('stageImage');
+        const galleryStage = document.getElementById('galleryStage');
+        const galleryThumbs = document.getElementById('galleryThumbs');
+
+        function openModal(data) {
+            // 1. 基础信息
+            document.getElementById('mArtist').innerText = data.artist;
+            document.getElementById('mTitle').innerText = data.courseName;
+            document.getElementById('mDesc').innerText = data.details;
+
+            // 2. 判断类型并渲染
+            textView.style.display = 'none';
+            galleryView.style.display = 'none';
+
+            // 优先判断是否有图片
+            if (data.imageCatalog && data.imageCatalog.length > 0) {
+                // --> 图片模式
+                mType.innerText = "IMAGE GALLERY";
+                galleryView.style.display = 'flex';
+                renderGallery(data.imageCatalog);
+            } else if (data.textCatalog && data.textCatalog.length > 0) {
+                // --> 文字模式
+                mType.innerText = "TEXT DOCUMENT";
+                textView.style.display = 'block';
+                renderTextList(data.textCatalog);
+            } else {
+                mType.innerText = "EMPTY";
+            }
+
+            // 3. 显示
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+        }
+
+        // --- 渲染文字列表 ---
+        function renderTextList(list) {
+            textView.innerHTML = '';
+            list.forEach((text, idx) => {
+                const row = document.createElement('div');
+                row.className = 'chapter-item';
+                row.innerHTML = `
+                    <div style="display:flex; align-items:center;">
+                        <span class="chapter-idx">${(idx+1).toString().padStart(2, '0')}</span>
+                        <span class="chapter-name">${text}</span>
+                    </div>
+                    <span style="font-size:0.8rem; opacity:0.5;">READ</span>
+                `;
+                textView.appendChild(row);
+            });
+        }
+
+        // --- 渲染画廊 ---
+        function renderGallery(list) {
+            galleryThumbs.innerHTML = '';
+
+            // 默认显示第一张
+            const firstSrc = resolvePath(list[0].path);
+            stageImage.src = firstSrc;
+            resetImageState();
+
+            list.forEach((img, idx) => {
+                const thumb = document.createElement('img');
+                const realSrc = resolvePath(img.path);
+                thumb.src = realSrc;
+                thumb.className = 'thumb';
+                if (idx === 0) thumb.classList.add('active');
+
+                thumb.addEventListener('click', () => {
+                    // 切换大图
+                    stageImage.src = realSrc;
+                    resetImageState();
+                    // 高亮缩略图
+                    document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
+                    thumb.classList.add('active');
+                });
+
+                galleryThumbs.appendChild(thumb);
+            });
+        }
+
+        // ============================================
+        // 4. 图片交互 (滚轮缩放 + 拖拽)
+        // ============================================
+        let scale = 1;
+        let pPanning = false;
+        let pointX = 0,
+            pointY = 0;
+        let startX = 0,
+            startY = 0;
+
+        function updateTransform() {
+            stageImage.style.transform = `translate(${pointX}px, ${pointY}px) scale(${scale})`;
+        }
+
+        function resetImageState() {
+            scale = 1;
+            pointX = 0;
+            pointY = 0;
+            updateTransform();
+        }
+
+        galleryStage.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            scale += e.deltaY * -0.001;
+            scale = Math.min(Math.max(.5, scale), 4); // 限制缩放 0.5x ~ 4x
+            updateTransform();
+        });
+
+        galleryStage.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            pPanning = true;
+            startX = e.clientX - pointX;
+            startY = e.clientY - pointY;
+            galleryStage.style.cursor = 'grabbing';
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!pPanning) return;
+            e.preventDefault();
+            pointX = e.clientX - startX;
+            pointY = e.clientY - startY;
+            updateTransform();
+        });
+
+        window.addEventListener('mouseup', () => {
+            pPanning = false;
+            galleryStage.style.cursor = 'grab';
+        });
+
+
+        // ============================================
+        // 5. Three.js 背景 (保持原样)
+        // ============================================
+        const canvas = document.querySelector('#webgl-canvas');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({
+            canvas,
+            alpha: true,
+            antialias: true
+        });
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        const geometry = new THREE.BufferGeometry();
+        const count = 1000;
+        const pos = new Float32Array(count * 3);
+        for (let i = 0; i < count * 3; i++) pos[i] = (Math.random() - 0.5) * 30;
+        geometry.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+        const material = new THREE.PointsMaterial({
+            size: 0.03,
+            color: 0xd4af37,
+            transparent: true,
+            opacity: 0.7
+        });
+        const points = new THREE.Points(geometry, material);
+        scene.add(points);
+        camera.position.z = 5;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            points.rotation.y += 0.0005;
+            points.rotation.x += 0.0002;
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+
+</html>

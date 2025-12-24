@@ -7,17 +7,14 @@
     <title>JASMIN | Art Studio</title>
 
     <!-- 引入字体 -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;600&display=swap"
-        rel="stylesheet">
-
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><path fill=%22%23d4af37%22 d=%22M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c1.85 0 3.56-.5 5.03-1.38.38-.23.63-.64.63-1.09v-1.99c0-.83.67-1.5 1.5-1.5.4 0 .76.16 1.03.42l.34.34c.19.19.45.3.71.3.55 0 1-.45 1-1V12c0-5.52-4.48-10-10-10zm-3 8.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3.5 3c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm2.5-3c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm2.5 5h-1.5v-1.5h1.5v1.5z%22/></svg>">
     <!-- 依赖库 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <style>
         :root {
-
             --bg-deep: #050505;
             --bg-card: #141414;
             --border-color: rgba(255, 255, 255, 0.08);
@@ -33,7 +30,6 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            /* user-select: none; */
         }
 
         body {
@@ -83,7 +79,6 @@
             cursor: pointer;
         }
 
-        /* SVG 图标样式 */
         .logo-icon svg {
             width: 40px;
             height: 40px;
@@ -122,7 +117,7 @@
             background: rgba(255, 255, 255, 0.1);
         }
 
-        /* --- 网格区域 --- */
+        /* --- 内容区域 --- */
         .content-scroll-area {
             flex: 1;
             overflow-y: auto;
@@ -152,18 +147,29 @@
             border-radius: 8px;
             overflow: hidden;
             cursor: pointer;
-            /* transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s ease; */
             display: flex;
             flex-direction: column;
+
         }
 
         .card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            border-color: rgba(255, 255, 255, 0.2);
+            /* 向上平移，营造悬浮感 */
+            /* transform: translateY(-20px); */
+
+            /* 高级白色光晕阴影 */
+            /* 第一层(0 15px 30px)：较近的强光，勾勒轮廓 */
+            /* 第二层(0 30px 60px)：较远的柔光，营造氛围 */
+            box-shadow:
+                0 15px 30px -5px rgba(255, 255, 255, 0.1),
+                0 30px 60px -15px rgba(255, 255, 255, 0.05);
+
+            /* 边框同时也亮一点，增加质感 */
+            border-color: rgba(255, 255, 255, 0.4);
+
+            /* 可选：背景微微提亮，增加通透感 */
+            background: rgba(255, 255, 255, 0.03);
         }
 
-        /* 封面区域 */
         .card-cover {
             height: 180px;
             width: 100%;
@@ -230,7 +236,7 @@
             color: #999;
         }
 
-        /* --- 沉浸式弹窗 (Modal) --- */
+        /* --- 弹窗 (Modal) --- */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -315,7 +321,7 @@
             padding-bottom: 20px;
         }
 
-        /* 右侧内容区 (根据类型自动切换) */
+        /* 右侧内容区 */
         .modal-main {
             flex: 1;
             position: relative;
@@ -323,52 +329,78 @@
             overflow: hidden;
         }
 
-        /* A. 文本列表模式 */
+        /* --- 核心修改：文本目录样式优化 (区分大小标题) --- */
         .text-catalog-view {
-            padding: 60px 100px;
+            padding: 40px 80px;
             overflow-y: auto;
             height: 100%;
             display: none;
-            /* 默认隐藏 */
         }
 
-        .chapter-item {
-            padding: 25px 0;
-            border-bottom: 1px solid #1a1a1a;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: #aaa;
-            transition: 0.3s;
+        .text-catalog-view::-webkit-scrollbar {
+            width: 6px;
         }
 
-        .chapter-item:hover {
-            color: #fff;
-            padding-left: 10px;
-            border-bottom-color: var(--accent-gold);
+        .text-catalog-view::-webkit-scrollbar-thumb {
+            background: #333;
         }
 
-        .chapter-idx {
-            font-family: var(--font-logo);
+        /* 大标题样式 (Main Title) */
+        .catalog-header-item {
+            margin-top: 40px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--accent-gold);
             color: var(--accent-gold);
-            margin-right: 20px;
-            font-size: 1.2rem;
+            font-family: var(--font-title);
+            font-size: 1.5rem;
+            letter-spacing: 1px;
         }
 
-        .chapter-name {
-            font-size: 1.1rem;
+        /* 第一条如果是大标题，去掉上方间距 */
+        .catalog-header-item:first-child {
+            margin-top: 0;
         }
 
-        /* B. 图片画廊模式 */
+        /* 小标题/内容样式 (Sub Item) */
+        .catalog-sub-item {
+            padding: 12px 15px;
+            border-bottom: 1px dashed #222;
+            color: #aaa;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: flex-start;
+            transition: 0.3s;
+            line-height: 1.6;
+        }
+
+        .catalog-sub-item:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.03);
+            padding-left: 25px;
+        }
+
+        .catalog-sub-item::before {
+            content: '•';
+            color: #444;
+            margin-right: 15px;
+            flex-shrink: 0;
+            /* 防止点被压缩 */
+        }
+
+        .catalog-sub-item:hover::before {
+            color: var(--accent-gold);
+        }
+
+
+        /* 画廊模式样式 */
         .gallery-view {
             width: 100%;
             height: 100%;
             display: none;
-            /* 默认隐藏 */
             flex-direction: column;
         }
 
-        /* 画廊-大图展示区 */
         .gallery-stage {
             flex: 1;
             position: relative;
@@ -388,11 +420,8 @@
             max-height: 90%;
             box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
             transition: transform 0.1s linear;
-            /* 拖拽平滑 */
-            transform-origin: center;
         }
 
-        /* 画廊-底部缩略图栏 */
         .gallery-thumbs {
             height: 100px;
             background: #0a0a0a;
@@ -423,7 +452,6 @@
             transform: scale(1.1);
         }
 
-        /* 提示 */
         .empty-tip {
             position: absolute;
             top: 50%;
@@ -462,7 +490,6 @@
         <header>
             <div class="logo">
                 <div class="logo-icon">
-                    <!-- 艺术调色板 SVG Icon -->
                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path
                             d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c1.85 0 3.56-.5 5.03-1.38.38-.23.63-.64.63-1.09v-1.99c0-.83.67-1.5 1.5-1.5.4 0 .76.16 1.03.42l.34.34c.19.19.45.3.71.3.55 0 1-.45 1-1V12c0-5.52-4.48-10-10-10zm-3 8.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3.5 3c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm2.5-3c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm2.5 5h-1.5v-1.5h1.5v1.5z" />
@@ -496,29 +523,22 @@
                 <div class="m-artist" id="mArtist">Artist Name</div>
                 <h2 class="m-title" id="mTitle">Course Title</h2>
                 <p class="m-desc" id="mDesc">Description...</p>
-                <!-- 这里还可以放一些统计信息 -->
                 <div style="margin-top:auto; font-size:0.8rem; color:#444;">
-                    Catalog Type: <span id="mType" style="color:#666;">Unknown</span>
+                    目录类型: <span id="mType" style="color:#666;">Unknown</span>
                 </div>
             </div>
 
-            <!-- 右侧内容 (互斥) -->
+            <!-- 右侧内容 -->
             <div class="modal-main">
-                <!-- <div class="empty-tip">NO CONTENT LOADED</div> -->
-
                 <!-- 模式A：文本列表 -->
-                <div class="text-catalog-view" id="textView">
-                    <!-- JS 填充 -->
-                </div>
+                <div class="text-catalog-view" id="textView"></div>
 
                 <!-- 模式B：图片画廊 -->
                 <div class="gallery-view" id="galleryView">
                     <div class="gallery-stage" id="galleryStage">
                         <img src="" class="stage-image" id="stageImage">
                     </div>
-                    <div class="gallery-thumbs" id="galleryThumbs">
-                        <!-- JS 填充 -->
-                    </div>
+                    <div class="gallery-thumbs" id="galleryThumbs"></div>
                 </div>
             </div>
         </div>
@@ -526,90 +546,407 @@
 
     <script>
         // ============================================
-        // 1. 数据配置 (模拟本地数据)
+        // 1. 数据配置
         // ============================================
-        // 默认封面图 (当 JSON 中没有 cover 时使用)
-        const DEFAULT_COVER =
-            "https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?q=80&w=1000&auto=format&fit=crop";
+        // 使用说明：
+        // 1. 大标题：在字符串最前面加 "#" 号 (例如 "# 第1章：开头")
+        // 2. 小标题/普通内容：直接写文字，或者前面加 "-" 号
+
+        const DEFAULT_COVER = "https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?q=80&w=1000";
 
         const DATABASE = [{
-                artist: "jdia",
+                artist: "Jida ",
                 courseName: "创作心爱插画的秘诀：线条艺术与绘画入门",
-                details: "- 课程介绍是什么让角色更具吸引力？3D形状和形态的重要性基础的重要性：像涂鸦一样轻松创作出色的绘画作品- Jida的独门学习技巧提升实力的特化学习绘图时特别注意的要点以六面体、椭圆、圆柱等基础形体进行手部热身练习- 使用画笔和工具Jida严选的笔刷和工具",
-                tags: ["Oil", "Classic", "Texture"],
-                cover: "", // 空着，测试默认封面
-                // 只有图片目录
+                details: "- 课程介绍 是什么让角色更具吸引力？ 3D形状和形态的重要性 基础的重要性：像涂鸦一样轻松创作出色的绘画作品 - Jida的独门学习技巧 提升实力的特化学习 绘图时特别注意的要点 以六面体、椭圆、圆柱等基础形体进行手部热身练习 - 使用画笔和工具 Jida严选的笔刷和工具",
+                tags: ["Illustration", "Beginner", "LineArt"],
+                cover: "../art-content/imgs/jida.png",
                 imageCatalog: [],
                 textCatalog: [
-                    "Ch.1:## 像涂鸦一样简单的人物绘画1：绘制迷人的变形头部：- 绘画基础 什么是线条和形状？ 调整线条和形状的强度 使用线条绘制具有3D效果且美观图形的技巧 - 头骨的结构 头骨的结构 示范从不同角度绘制头骨 探索头部的基本3D形状（正面／侧边视图） 绘制各种视图以进行快速热身 - 脸部结构：将脸部简化为形状的基础知识 分析脸部复杂的3D形状 使用形状简化脸部结构（正面／侧边视图） - 头部和颈部的结构 了解头部和颈部的连接 身体结构因性别而异：美观的颈部形状、锁骨和肌肉 - 眼睛、鼻子和嘴巴的结构 从正面观察眼睛、鼻子和嘴巴 从侧面观察眼睛、鼻子和嘴巴",
-                    "Ch.2: Post-Impressionism Analysis",
-                    "Ch.3: Cubism and Structure",
-                    "Ch.4: Surrealism Dreamscapes",
-                    "Ch.5: Abstract Expressionism"
+                    "# 1. 像涂鸦一样简单的人物绘画1：绘制迷人的变形头部",
+                    "绘画基础",
+                    "什么是线条和形状？",
+                    "调整线条和形状的强度",
+                    "使用线条绘制具有3D效果且美观图形的技巧",
+                    "头骨的结构",
+                    "头骨的结构",
+                    "示范从不同角度绘制头骨",
+                    "探索头部的基本3D形状（正面／侧边视图）",
+                    "绘制各种视图以进行快速热身",
+                    "脸部结构：将脸部简化为形状的基础知识",
+                    "分析脸部复杂的3D形状",
+                    "使用形状简化脸部结构（正面／侧边视图）",
+                    "头部和颈部的结构",
+                    "了解头部和颈部的连接",
+                    "身体结构因性别而异：美观的颈部形状、锁骨和肌肉",
+                    "眼睛、鼻子和嘴巴的结构",
+                    "从正面观察眼睛、鼻子和嘴巴",
+                    "从侧面观察眼睛、鼻子和嘴巴",
+
+                    "# 2. 像涂鸦一样轻松画图2：一起画图",
+                    "脸部特征形状随角度变化1",
+                    "绘制眼睛、鼻子和嘴巴的不同视图",
+                    "什么是变形？",
+                    "绘制变形的眼睛、鼻子和嘴巴",
+                    "脸部特征形状随角度变化2",
+                    "绘制眼睛、鼻子和嘴巴的不同视图",
+                    "什么是变形？",
+                    "绘制变形的眼睛、鼻子和嘴巴",
+                    "脸部特征形状随角度变化3",
+                    "绘制眼睛、鼻子和嘴巴的不同视图",
+                    "什么是变形？",
+                    "绘制变形的眼睛、鼻子和嘴巴",
+                    "高级脸型1",
+                    "绘制3D脸部的不同视图",
+                    "高级脸型2",
+                    "绘制3D脸部的不同视图",
+                    "高级脸型3",
+                    "绘制3D脸部的不同视图",
+                    "男性脸部特征及头发画法",
+                    "探索写实脸部比例",
+                    "卡通风格脸部比例",
+                    "Jida的半写实风脸部比例",
+                    "女性脸部特征及头发绘画",
+                    "探索写实脸部比例",
+                    "卡通风格脸部比例",
+                    "Jida的半写实风脸部比例",
+                    "人物脸部表情的变形与绘制",
+                    "写实、半写实和动漫风格角色的变形方法",
+                    "绘制情绪和脸部表情",
+
+                    "# 3. 像涂鸦一样简单的人物画法3：画半身像",
+                    "各角度脸部 & 半身像1",
+                    "绘制强烈抢眼型男性角色",
+                    "各角度脸部 & 半身像2",
+                    "绘制高冷感男性角色",
+                    "各角度脸部 & 半身像3",
+                    "绘制女子力爆棚的御姐型女性角色",
+                    "各角度脸部 & 半身像4",
+                    "绘制端庄优雅的女性角色",
+                    "自由脸部绘画",
+                    "自由画出你喜欢的脸孔，享受乐趣",
+
+                    "# 4. 像涂鸦一样轻松画图4：超越绘画的色彩",
+                    "简单背景的半身像插画",
+                    "草图",
+                    "黑白粗色",
+                    "上色",
+                    "完成"
                 ]
             },
             {
-                artist: "Jasmin",
-                courseName: "History of Modern Art",
-                details: "纯理论课程。梳理从19世纪末到20世纪中的现代艺术流派演变。",
+                artist: "hide",
+                courseName: "人物素描大師：從多角度捕捉人體自然動態",
+                details: "可觀看課程 - 入門~基礎 - 共 27部影片, 19小時 37分 - 日語 - 英語, 繁體中文, 西班牙語 [Auto] - 提供課程教材",
                 tags: ["Theory", "History", "Reading"],
-                cover: "https://chenwenb.com/wp-content/themes/modown/timthumb.php?src=https://chenwenb.com/wp-content/uploads/2025/12/21011523972.jpg&w=285&h=180&zc=1&q=95&a=c", // 有封面
-                // 只有文字目录
+                cover: "../art-content/imgs/hide.png",
                 imageCatalog: [],
                 textCatalog: [
-                    "Ch.1: Impressionism Origins",
-                    "Ch.2: Post-Impressionism Analysis",
-                    "Ch.3: Cubism and Structure",
-                    "Ch.4: Surrealism Dreamscapes",
-                    "Ch.5: Abstract Expressionism"
+                    "# 1. 讲师介绍及课程概况",
+                    "我的职业生涯",
+                    "课程大纲",
+                    "重点教学内容",
+
+                    "# 2. Section 02 热身",
+                    "关于如何画线",
+                    "你不推荐画线吗？",
+                    "什么是好线条？",
+                    "如何握笔",
+                    "让我们画线",
+                    "直线",
+                    "曲线",
+                    "圆",
+
+                    "# 3. Section 03 肖像基础知识",
+                    "画人物之前需要了解的基础知识",
+                    "人体的主要部位和比例",
+                    "男女比例差异",
+                    "男性特征",
+                    "女性特征",
+                    "人物特征及比例绘制方法",
+                    "以比例划分进行练习绘制",
+
+                    "# 4. Section 04 手势绘图",
+                    "用动态线画人物 ①",
+                    "什么是动态线？",
+                    "练习寻找动态线",
+                    "练习将人物分为三段与线条组合",
+                    "用动态线画人物 ②",
+                    "练习从人体中找出动态线",
+
+                    "# 5. Section 05 立体感人物绘制练习",
+                    "什么是透视？",
+                    "视平线是什么？",
+                    "一点透视",
+                    "两点透视",
+                    "三点透视",
+                    "练习3D绘图",
+                    "画立方体和练习",
+                    "画圆柱体和练习",
+                    "应用练习：绘制身边的物品",
+                    "提升立体人物绘制技巧的小诀窍",
+                    "从平面角度思考（转面、边角处理）",
+                    "包覆线的运用",
+                    "快速绘制技巧",
+                    "重叠和相切",
+                    "立体人物绘制实作 ①",
+                    "练习将3个物件分成区块",
+                    "如何识别肩关节和髋关节",
+                    "练习区分立方体和圆柱体",
+                    "立体人物绘制实作 ②",
+                    "脚的简化",
+                    "手臂的简化",
+                    "根据照片绘制简单的手和脚",
+                    "应用练习：以照片绘制简化的基础模型",
+                    "立体人物绘制实作 ③",
+                    "活用透视图法描绘人物的技巧",
+                    "应用练习：使用透视绘制多人构图",
+
+                    "# 6. Section 06 骨骼和肌肉的简化①躯干",
+                    "头部与颈部结构",
+                    "将头部分为3个区块",
+                    "如何简化和绘制骨骼",
+                    "从各个角度表现立体感",
+                    "胸部区域的结构",
+                    "基本肌肉和外观",
+                    "简化绘制",
+                    "绘制女性胸部",
+                    "肩部区域的结构",
+                    "基本肌肉和外观",
+                    "简化绘图",
+                    "关节和动作",
+                    "背部区域结构",
+                    "基本肌肉和外观",
+                    "简化绘画",
+                    "男性和女性之间的差异",
+                    "腰部和臀部的结构",
+                    "基本肌肉和外观",
+                    "简化绘画",
+                    "关节和运动",
+                    "男性和女性之间的差异",
+
+                    "# 7. Section 07 骨骼和肌肉的简化②四肢",
+                    "手臂结构",
+                    "基本肌肉和外观",
+                    "简化绘图",
+                    "肘关节和动作",
+                    "手部结构",
+                    "基本肌肉和外观",
+                    "简化绘图",
+                    "关节和动作",
+                    "腿部结构",
+                    "基本肌肉和外观",
+                    "简化绘图",
+                    "膝关节和动作",
+                    "足部结构",
+                    "基本肌肉和外观",
+                    "简化绘图",
+                    "关节和运动",
+
+                    "# 8. Section 08 整体节奏与流线感的人体绘制",
+                    "考量轮廓绘制人体",
+                    "什么是线条艺术中的节奏？",
+                    "不同类型的线条组合",
+                    "识别每个身体部位的独特轮廓",
+                    "考虑挤压和拉伸原则进行「D型绘制」",
+                    "练习各种动作姿势",
+                    "让人物更生动的标志点是什么？",
+                    "记住身体的标志点",
+                    "根据照片绘制姿势，并考量标志点",
+
+                    "# 9. Section 09 实际应用：绘制角色插画",
+                    "绘制角色插画① 基础模型",
+                    "绘制动态线",
+                    "简单地补强立体感",
+                    "强化肌肉感",
+                    "制作流线型轮廓",
+                    "绘制角色插画② 细节表现",
+                    "添加细节",
+                    "画线稿整理（线条清理）",
+                    "简单着色",
+                    "阴影处理",
+                    "结论"
                 ]
             },
             {
-                artist: "Jasmin",
-                courseName: "Sketching Dynamics",
-                details: "人体动态速写专项训练。大量图片参考资料。",
+                artist: "hide",
+                courseName: "臉部繪製攻略，隨心所欲畫出任何角色",
+                details: "可觀看課程 - 入門~基礎 - 共 31部影片, 20小時 57分 - 日語 - 英語, 繁體中文 - 提供課程教材",
                 tags: ["Sketch", "Figure", "Anatomy"],
-                cover: "../art-content/imgs/壁纸14.jpg",
-                imageCatalog: [{
-                        title: "Gesture 01",
-                        path: "./local/sk_01.jpg"
-                    },
-                    {
-                        title: "Gesture 02",
-                        path: "./local/sk_02.jpg"
-                    },
-                    {
-                        title: "Gesture 03",
-                        path: "./local/sk_03.jpg"
-                    },
-                    {
-                        title: "Muscle Structure",
-                        path: "./local/sk_04.jpg"
-                    }
-                ],
-                textCatalog: []
-            },
-            {
-                artist: "Jasmin",
-                courseName: "Digital Concept Design",
-                details: "针对游戏行业的概念设计理论，文字笔记整理。",
-                tags: ["Concept", "GameArt", "Notes"],
-                cover: "https://images.unsplash.com/photo-1558655146-d09347e92766?q=80&w=800",
+                cover: "../art-content/imgs/hide.png",
                 imageCatalog: [],
                 textCatalog: [
-                    "Note 1: Silhouette Design",
-                    "Note 2: Color Scripting",
-                    "Note 3: World Building Rules",
-                    "Note 4: Character Archetypes"
+                    "# 01 介绍",
+                    "自我介绍与课程概述",
+                    "工作经历",
+                    "课程理念",
+                    "课程流程概述",
+
+                    "# 02 热身",
+                    "如何画线",
+                    "如何握笔（或钢笔）以及线条的类型",
+                    "如何有效地使用不同类型的线条",
+                    "连接短线的缺点",
+                    "热身 ① 线条练习",
+                    "直线练习",
+                    "曲线练习",
+                    "圆练习",
+                    "暖身 ② 三维形体练习 1",
+                    "为什么需要立方体？",
+                    "绘制立方体的步骤",
+                    "立方体练习",
+                    "使用广角镜头视角练习绘制立方体",
+                    "暖身 ③ 三维形体练习 2",
+                    "绘制圆柱体的步骤",
+                    "使用辅助线练习绘制圆柱体",
+                    "圆柱体绘制实战练习",
+
+                    "# 03 标准头部绘制方法",
+                    "头骨的特征",
+                    "头骨的特征",
+                    "头骨骨骼的名称",
+                    "绘制头部时需要了解的关键结构要点",
+                    "如何简化和绘制头部 ①",
+                    "绘制头骨的步骤",
+                    "准备工作 ① 绘制球体",
+                    "准备工作 ② 简化并绘制头部",
+                    "如何简化和绘制头部 ②",
+                    "绘制头骨 ① 眼眶",
+                    "绘制头骨 ② 鼻骨",
+                    "绘制头骨 ③ 颧骨",
+                    "绘制头骨 ④ 上颌骨",
+                    "绘制头骨 ⑤ 下颌骨",
+                    "实用骷髅绘图",
+                    "练习从不同角度绘画①：侧视图",
+                    "练习从不同角度绘画②：俯视图（高角度）",
+                    "练习从不同角度绘画③：仰视图（低角度）",
+
+                    "# 04 标准面部特征绘制方法",
+                    "如何画眼睛和眉毛①",
+                    "眼球的结构",
+                    "练习以不同角度绘制眼球",
+                    "眼睑的结构及简化",
+                    "练习从不同角度绘制眼睑",
+                    "如何画眼睛和眉毛②",
+                    "眉毛的结构和类型",
+                    "关于睫毛",
+                    "练习在脸上画眼睛",
+                    "如何画鼻子",
+                    "关于鼻子的结构",
+                    "如何简化和绘制鼻子",
+                    "从不同角度练习绘制鼻子",
+                    "全方位的鼻子练习",
+                    "如何画耳朵",
+                    "关于耳朵的结构",
+                    "如何简化和绘制耳朵",
+                    "练习从不同角度绘制耳朵",
+                    "如何画嘴巴①",
+                    "关于嘴部的结构",
+                    "嘴唇的结构",
+                    "如何简化和绘制嘴部区域",
+                    "练习从不同角度绘制",
+                    "如何画嘴巴②",
+                    "关于牙齿的结构",
+                    "关于下颌和嘴部的运动",
+                    "练习绘制各种嘴部形状",
+
+                    "# 05 写实头部画综合练习",
+                    "如何绘制具有三维透视效果的头部",
+                    "如何将头部分成不同的平面，并注意其凸起和凹陷",
+                    "练习从不同角度绘画",
+                    "绘制不同角色的技巧",
+                    "男女骨骼结构和脸部特征的差异",
+                    "骨骼随年龄的变化",
+                    "脸部特征随年龄的变化",
+                    "如何根据年龄区分脸孔",
+                    "真实头部综合练习",
+                    "区分六种类型人群的实用练习",
+
+                    "# 06 如何绘制人物",
+                    "区分人物的关键点",
+                    "每个角色在比例和轮廓上的差异",
+                    "区分角色的五个关键点",
+                    "从不同角度绘画的技巧",
+                    "绘制立体感的技巧",
+                    "如何绘制复杂角度",
+                    "各角色各部分的特征",
+                    "五大风格化眼部表情重点",
+                    "绘制鼻子的基本想法和范例",
+                    "嘴部表情如何随风格化程度而变化",
+
+                    "# 07 综合实践：人物头像",
+                    "动漫角色综合练习",
+                    "练习从各个角度绘制动漫人物",
+                    "Q版人物综合练习",
+                    "练习从不同角度绘制风格化的人物角色",
+                    "SD角色综合练习",
+                    "练习从各个角度绘制SD角色",
+                    "男性角色综合练习",
+                    "练习从各个角度绘制男性角色",
+                    "超人角色综合练习",
+                    "练习从各个角度绘制超人角色",
+
+                    "# 08 如何画头发和表情",
+                    "了解头发的基础知识",
+                    "头发基础：发际线和分区",
+                    "了解头发的走向",
+                    "捕捉并绘制发丝的技巧",
+                    "练习不同的发型",
+                    "关于不同类型的发型",
+                    "不同角色的头发绘制方式有何不同",
+                    "绘制富有表现力的人物的技巧",
+                    "如何创造表情",
+                    "绘制脸部特征的各种方法",
+                    "组合五官创造表情的技巧",
+
+                    "# 09 最终练习：角色设计创作",
+                    "创造角色设计",
+                    "创作一个类似于实际动画制作中使用的角色设计",
+                    "建立角色表情表",
+                    "建立一份类似于实际动画制作中使用的角色表情表"
                 ]
+            },
+            {
+                artist: "曼奇立德&星雨",
+                courseName: "[星雨] 曼奇大触课堂 2018/2980",
+                details: "https://weibo.com/5787332413/G9gbD23ct",
+                tags: ["Concept", "GameArt", "Notes"],
+                cover: "../art-content/imgs/manqilide/dachu/01.png",
+                imageCatalog: [
+
+                    "../art-content/imgs/manqilide/dachu/01.png",
+                    "../art-content/imgs/manqilide/dachu/02.png",
+                    "../art-content/imgs/manqilide/dachu/03.png",
+                    "../art-content/imgs/manqilide/dachu/04.png",
+                ],
+            }, {
+                artist: "73",
+                courseName: "曼奇立德「B站」2024 73老师人体线稿结构进阶课/49.9",
+                details: "https://www.bilibili.com/cheese/play/ss9610?csource=common_searchlecture_lecturecard_null&spm_id_from=333.874.selfDef.search_big_card&search_query=73&search_id=10516517002997223172",
+                tags: ["Concept", "GameArt", "Notes"],
+                cover: "https://java-ai-nike.oss-cn-beijing.aliyuncs.com/2025/10/manqi/73/01.png",
+                imageCatalog: [
+                    "https://java-ai-nike.oss-cn-beijing.aliyuncs.com/2025/10/manqi/73/01.png",
+                    "https://java-ai-nike.oss-cn-beijing.aliyuncs.com/2025/10/manqi/73/02.png"
+                ],
             }
         ];
 
-        // --- 辅助：将假本地路径转为真网络图 ---
-        // (您正式使用时，请删除此函数并在渲染时直接用 item.path)
+        // 模拟网络图 (真实使用时请删掉这个函数并用真实路径)
         function resolvePath(localPath) {
-            const seed = localPath.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
-            return `https://picsum.photos/seed/${seed}/1200/900`;
+            // const seed = localPath.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+            // return `https://picsum.photos/seed/${seed}/1200/900`;
+            // 1. 识别并处理我的演示假数据
+            // (我的演示数据里都包含 "./local/" 这个特征，如果检测到这个，继续生成随机美图)
+            if (localPath.includes('./local/')) {
+                const seed = localPath.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+                return `https://picsum.photos/seed/${seed}/1200/900`;
+            }
+
+            // 2. 其他情况直接返回！
+            // 无论是网络链接 (http...) 
+            // 还是您的本地路径 (../art-content/...)
+            // 浏览器自己会去加载，不需要我们干涉
+            return localPath;
         }
 
         // ============================================
@@ -619,7 +956,6 @@
 
         function renderGrid(filter = '') {
             gridContainer.innerHTML = '';
-
             const list = DATABASE.filter(item =>
                 item.courseName.toLowerCase().includes(filter.toLowerCase()) ||
                 item.tags.some(t => t.toLowerCase().includes(filter.toLowerCase()))
@@ -628,11 +964,7 @@
             list.forEach((item, idx) => {
                 const card = document.createElement('div');
                 card.className = 'card';
-
-                // 处理封面
                 const coverSrc = item.cover ? item.cover : DEFAULT_COVER;
-
-                // 标签
                 const tagHtml = item.tags.map(t => `<span class="tag">${t}</span>`).join('');
 
                 card.innerHTML = `
@@ -647,63 +979,50 @@
                         <div class="card-footer">${tagHtml}</div>
                     </div>
                 `;
-
-                // 动画
                 gsap.from(card, {
                     y: 30,
                     opacity: 0,
                     delay: idx * 0.1,
                     duration: 0.5
                 });
+                const coverEl = card.querySelector('.card-cover'); // 获取封面元素
+                coverEl.addEventListener('click', () => openModal(item)); // 只给封面加点击事件
 
-                card.addEventListener('click', () => openModal(item));
                 gridContainer.appendChild(card);
             });
         }
         renderGrid();
-
         document.getElementById('searchInput').addEventListener('input', (e) => renderGrid(e.target.value));
 
-
         // ============================================
-        // 3. 弹窗与目录逻辑 (互斥)
+        // 3. 弹窗与目录逻辑 (修复版)
         // ============================================
         const modal = document.getElementById('modalOverlay');
         const textView = document.getElementById('textView');
         const galleryView = document.getElementById('galleryView');
         const mType = document.getElementById('mType');
-
-        // 画廊相关元素
         const stageImage = document.getElementById('stageImage');
-        const galleryStage = document.getElementById('galleryStage');
         const galleryThumbs = document.getElementById('galleryThumbs');
 
         function openModal(data) {
-            // 1. 基础信息
             document.getElementById('mArtist').innerText = data.artist;
             document.getElementById('mTitle').innerText = data.courseName;
             document.getElementById('mDesc').innerText = data.details;
 
-            // 2. 判断类型并渲染
             textView.style.display = 'none';
             galleryView.style.display = 'none';
 
-            // 优先判断是否有图片
             if (data.imageCatalog && data.imageCatalog.length > 0) {
-                // --> 图片模式
-                mType.innerText = "IMAGE GALLERY";
+                mType.innerText = "图片 目录";
                 galleryView.style.display = 'flex';
                 renderGallery(data.imageCatalog);
             } else if (data.textCatalog && data.textCatalog.length > 0) {
-                // --> 文字模式
-                mType.innerText = "TEXT DOCUMENT";
+                mType.innerText = "文本 目录";
                 textView.style.display = 'block';
                 renderTextList(data.textCatalog);
             } else {
                 mType.innerText = "EMPTY";
             }
-
-            // 3. 显示
             modal.classList.add('active');
         }
 
@@ -711,35 +1030,45 @@
             modal.classList.remove('active');
         }
 
-        // --- 渲染文字列表 ---
+        // --- 核心修改：渲染文字列表 ---
         function renderTextList(list) {
             textView.innerHTML = '';
-            list.forEach((text, idx) => {
-                const row = document.createElement('div');
-                row.className = 'chapter-item';
-                row.innerHTML = `
-                    <div style="display:flex; align-items:center;">
-                        <span class="chapter-idx">${(idx+1).toString().padStart(2, '0')}</span>
-                        <span class="chapter-name">${text}</span>
-                    </div>
-                    <span style="font-size:0.8rem; opacity:0.5;">READ</span>
-                `;
-                textView.appendChild(row);
+
+            list.forEach((text) => {
+                const div = document.createElement('div');
+
+                // 判断逻辑：如果文字以 # 开头，就是大标题
+                if (text.trim().startsWith('#')) {
+                    div.className = 'catalog-header-item';
+                    // 去掉前面的 # 号再显示
+                    div.innerText = text.replace(/^#\s*/, '');
+                } else {
+                    // 否则是小标题/内容
+                    div.className = 'catalog-sub-item';
+                    // 如果有减号，也去掉，保持整洁
+                    div.innerText = text.replace(/^-\s*/, '');
+                }
+
+                textView.appendChild(div);
             });
         }
 
         // --- 渲染画廊 ---
+        // --- 渲染画廊 (适配纯图片链接数组) ---
         function renderGallery(list) {
             galleryThumbs.innerHTML = '';
 
-            // 默认显示第一张
-            const firstSrc = resolvePath(list[0].path);
+            // 1. 默认显示第一张 (注意：直接取 list[0]，不再需要 .path)
+            const firstSrc = resolvePath(list[0]);
             stageImage.src = firstSrc;
             resetImageState();
 
-            list.forEach((img, idx) => {
+            list.forEach((imgUrl, idx) => {
                 const thumb = document.createElement('img');
-                const realSrc = resolvePath(img.path);
+
+                // 2. 这里 imgUrl 就是路径字符串
+                const realSrc = resolvePath(imgUrl);
+
                 thumb.src = realSrc;
                 thumb.className = 'thumb';
                 if (idx === 0) thumb.classList.add('active');
@@ -756,16 +1085,16 @@
                 galleryThumbs.appendChild(thumb);
             });
         }
-
         // ============================================
-        // 4. 图片交互 (滚轮缩放 + 拖拽)
+        // 4. 图片交互 & Three.js 背景 (保持不变)
         // ============================================
-        let scale = 1;
-        let pPanning = false;
-        let pointX = 0,
-            pointY = 0;
-        let startX = 0,
+        let scale = 1,
+            pPanning = false,
+            pointX = 0,
+            pointY = 0,
+            startX = 0,
             startY = 0;
+        const galleryStage = document.getElementById('galleryStage');
 
         function updateTransform() {
             stageImage.style.transform = `translate(${pointX}px, ${pointY}px) scale(${scale})`;
@@ -780,11 +1109,10 @@
 
         galleryStage.addEventListener('wheel', (e) => {
             e.preventDefault();
-            scale += e.deltaY * -0.001;
-            scale = Math.min(Math.max(.5, scale), 4); // 限制缩放 0.5x ~ 4x
+            scale += e.deltaY * -0.005;
+            scale = Math.min(Math.max(0.5, scale), 50);
             updateTransform();
         });
-
         galleryStage.addEventListener('mousedown', (e) => {
             e.preventDefault();
             pPanning = true;
@@ -792,7 +1120,6 @@
             startY = e.clientY - pointY;
             galleryStage.style.cursor = 'grabbing';
         });
-
         window.addEventListener('mousemove', (e) => {
             if (!pPanning) return;
             e.preventDefault();
@@ -800,16 +1127,11 @@
             pointY = e.clientY - startY;
             updateTransform();
         });
-
         window.addEventListener('mouseup', () => {
             pPanning = false;
             galleryStage.style.cursor = 'grab';
         });
 
-
-        // ============================================
-        // 5. Three.js 背景 (保持原样)
-        // ============================================
         const canvas = document.querySelector('#webgl-canvas');
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -818,9 +1140,7 @@
             alpha: true,
             antialias: true
         });
-
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
         const geometry = new THREE.BufferGeometry();
         const count = 1000;

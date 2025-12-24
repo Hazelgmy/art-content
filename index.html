@@ -660,7 +660,7 @@
             </div>
         </div>
     </div>
-
+    <script src="data.js"></script>
     <script>
         // ============================================
         // 0. 登录逻辑 (新增)
@@ -709,79 +709,6 @@
         // 1. 数据配置
         // ============================================
         const DEFAULT_COVER = "https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?q=80&w=1000";
-
-        const DATABASE = [{
-                artist: "Jida ",
-                courseName: "创作心爱插画的秘诀：线条艺术与绘画入门",
-                details: "- 课程介绍 是什么让角色更具吸引力？ 3D形状和形态的重要性 基础的重要性：像涂鸦一样轻松创作出色的绘画作品 - Jida的独门学习技巧 提升实力的特化学习 绘图时特别注意的要点 以六面体、椭圆、圆柱等基础形体进行手部热身练习 - 使用画笔和工具 Jida严选的笔刷和工具",
-                tags: ["Illustration", "Beginner", "LineArt"],
-                cover: "../art-content/imgs/jida.png",
-                imageCatalog: [],
-
-                textCatalog: []
-            },
-            {
-                artist: "hide",
-                courseName: "人物素描大師：從多角度捕捉人體自然動態",
-                details: "可觀看課程 - 入門~基礎 - 共 27部影片, 19小時 37分 - 日語 - 英語, 繁體中文, 西班牙語 [Auto] - 提供課程教材",
-                tags: ["Theory", "History", "Reading"],
-                cover: "../art-content/imgs/hide.png",
-                imageCatalog: [],
-                textCatalog: [
-                    "# 1. 讲师介绍及课程概况",
-                    "我的职业生涯",
-                    "课程大纲",
-                    "重点教学内容",
-
-                    "# 2. Section 02 热身",
-                    "关于如何画线",
-                    "你不推荐画线吗？",
-                    "什么是好线条？",
-                    "如何握笔",
-                    "让我们画线",
-                    "直线",
-                    "曲线",
-                    "圆",
-                    // ... (数据保持原样) ...
-                ]
-            },
-            {
-                artist: "hide",
-                courseName: "臉部繪製攻略，隨心所欲畫出任何角色",
-                details: "可觀看課程 - 入門~基礎 - 共 31部影片, 20小時 57分 - 日語 - 英語, 繁體中文 - 提供課程教材",
-                tags: ["Sketch", "Figure", "Anatomy"],
-                cover: "../art-content/imgs/hide.png",
-                imageCatalog: [],
-                textCatalog: [
-                    "# 01 介绍",
-                    "自我介绍与课程概述",
-                    // ... (数据保持原样) ...
-                ]
-            },
-            {
-                artist: "曼奇立德&星雨",
-                courseName: "[星雨] 曼奇大触课堂 2018/2980",
-                details: "https://weibo.com/5787332413/G9gbD23ct",
-                tags: ["Concept", "GameArt", "Notes"],
-                cover: "../art-content/imgs/manqilide/dachu/01.png",
-                imageCatalog: [
-                    "../art-content/imgs/manqilide/dachu/01.png",
-                    "../art-content/imgs/manqilide/dachu/02.png",
-                    "../art-content/imgs/manqilide/dachu/03.png",
-                    "../art-content/imgs/manqilide/dachu/04.png",
-                ],
-            }, {
-                artist: "73",
-                courseName: "曼奇立德「B站」2024 73老师人体线稿结构进阶课/49.9",
-                details: "https://www.bilibili.com/cheese/play/ss9610?csource=common_searchlecture_lecturecard_null&spm_id_from=333.874.selfDef.search_big_card&search_query=73&search_id=10516517002997223172",
-                tags: ["Concept", "GameArt", "Notes"],
-                cover: "https://java-ai-nike.oss-cn-beijing.aliyuncs.com/2025/10/manqi/73/01.png",
-                imageCatalog: [
-                    "https://java-ai-nike.oss-cn-beijing.aliyuncs.com/2025/10/manqi/73/01.png",
-                    "https://java-ai-nike.oss-cn-beijing.aliyuncs.com/2025/10/manqi/73/02.png"
-                ],
-            }
-        ];
 
         function resolvePath(localPath) {
             if (localPath.includes('./local/')) {
